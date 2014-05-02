@@ -39,8 +39,9 @@ void KlasifikacijaGovora::init()
   kupimBuffere = false;
   //brojBufferaKojeKupim = 10;
   brojBufferaKojeSamPokupio = 0;
+  parametersSet = false;
 
-  
+  fProxyToALMemory.declareEvent("KlasifikacijaGovoraEvent", "KlasifikacijaGovora");
   /*
   //ucitavanje LSTER baze - ne valja, treba ili koristiti trenutno novi implementirani nacin ili snimiti novu bazu
   float lsterVr;
@@ -69,7 +70,7 @@ void KlasifikacijaGovora::pocniKlasifikaciju( const int &granicaGlasnoceParam = 
 					      const ALValue &channelIDParam = FRONTCHANNEL,
 					      //const int &deinterleavingParam,// = 0, 
 					      const int &inputBufferSizeParam = 8192) // 8192 (=170ms) ili 16384 (=340ms). Citat iz dokumentacije: "Warning: when speech recognition is running, a buffer size of 8192 is used. Don't change it during the recognition process."
-{   
+{   if( !parametersSet ) {
   audioDevice->callVoid("setClientPreferences",
                         getName(),                //Name of this module
                         frekvencijaParam,         //16000 Hz requested
@@ -87,11 +88,13 @@ void KlasifikacijaGovora::pocniKlasifikaciju( const int &granicaGlasnoceParam = 
     qiLogInfo("KlasifikacijaGovora") << "Buffer size je " << audioDevice->call<int>("getParameter", std::string("inputBufferSize")) <<
     " i takav ce biti sve dok se naoqi ne restarta." << std::endl;
   }
+  parametersSet = true;
+
   
   granicaGlasnoce = granicaGlasnoceParam;
   brojOkviraPoBufferu = brojOkviraPoBufferuParam;
   brojBufferaKojeKupim = brojBufferaKojeKupimParam;
-
+    }
   startDetection();
 }
 
@@ -227,7 +230,7 @@ void KlasifikacijaGovora::process(const int & nbOfChannels,
   		if( HZCRR < 0.005 )
   		{
   			klasa = "Neartikulirano";
-  			std::cout << "Neartikulirano\n";
+            //std::cout << "Neartikulirano\n";
   		}
   		else
   		{
@@ -260,6 +263,7 @@ void KlasifikacijaGovora::process(const int & nbOfChannels,
   				//std::cout << "Neartikulirano\n";
   			}
   			
+        }
   			//pohrana podataka, ovo se isto moglo direktno u almemory napisat.
   			
   			AL::ALValue eventValue;
@@ -274,6 +278,7 @@ void KlasifikacijaGovora::process(const int & nbOfChannels,
   			eventValue.arrayPush(timeStamp);
   			
   			fProxyToALMemory.raiseEvent("KlasifikacijaGovoraEvent", eventValue);
+            qiLogWarning("Klasifikacija govora") << "Raising event" << std::endl;
   			
   			/* Zapisivanje u datoteku; ne treba vise valjda.
   			std::ofstream logDat;
@@ -281,9 +286,6 @@ void KlasifikacijaGovora::process(const int & nbOfChannels,
 			logDat << timeStamp << " " << klasa << " (" << HZCRR << ", " << LSTER << ")\n";
 			logDat.close();
   			*/
-  		
-  		
-  		}
   		
   		
   		//std::cout << "Kraj." << std::endl;

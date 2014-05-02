@@ -49,6 +49,7 @@ private:
   int granicaGlasnoce; //ako je sample u bufferu (bilo koji buffer[i]) veci of ovoga, detektiran je "glasan" zvuk i zapocinje skupljanje buffera i racunanje znacajki.
   std::vector<float> STE; //za pohranu Short Time Energy
   std::vector<float> ZCR; //za pohranu Zero Crossing Rate
+  bool parametersSet;
   //std::map<float,int> bazaLSTER;
   
 };
