@@ -19,7 +19,13 @@ public:
   KlasifikacijaGovora(boost::shared_ptr<ALBroker> pBroker, std::string pName);
   virtual ~KlasifikacijaGovora();
 
-  void pocniKlasifikaciju();
+  void pocniKlasifikaciju(const int &granicaGlasnoceParam,
+			  const int &brojOkviraPoBufferuParam,
+			  const int &brojBufferaKojeKupimParam,
+			  const int &frekvencijaParam,
+			  const ALValue &channelIDParam,
+			  //const int &deinterleavingParam,
+			  const int &inputBufferSizeParam);
   
   void prekiniKlasifikaciju();
 

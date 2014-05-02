@@ -3,6 +3,9 @@
 #include <iostream>
 #include <math.h>
 #include <fstream>
+#include <string>
+#include <qi/log.hpp>
+
 #define SGN(x) (x>0)-(x<0) //signum funkcija
 
 
@@ -15,6 +18,13 @@ KlasifikacijaGovora::KlasifikacijaGovora(boost::shared_ptr<ALBroker> pBroker,
   		       "timeStamp]");
   
   functionName("pocniKlasifikaciju", getName(), "Zapocinje detektiranje glasnih zvukova i njihova klasifikacija");
+  addParam("granicaGlasnoceParam", "Npr. 5000");
+  addParam("brojOkviraPoBufferuParam", "Npr. 5");
+  addParam("brojBufferaKojeKupimParam", "Npr. 10");
+  addParam("frekvencijaParam", "Npr. 16000 ili 48000");
+  addParam("channelIDParam", "Npr. FRONTCHANNEL ili ALLCHANNELS");
+  //addParam("deinterleavingParam", "0 ili 1");   Iz nekog razloga nece se buildati ako je broj parametara >= 7 (da, ako bilo koji od tih 7 parametara izbacim, radi, inace nece) pa sam presudio da je ovaj najmanje vazan i uvijek ce biti 0.
+  addParam("inputBufferSizeParam", "8192 (=170ms) ili 16384 (=340ms). Citat iz dokumentacije: \"Warning: when speech recognition is running, a buffer size of 8192 is used. Don't change it during the recognition process.\"");
   BIND_METHOD(KlasifikacijaGovora::pocniKlasifikaciju);
   
   functionName("prekiniKlasifikaciju", getName(), "Prekid detektiranja zvukova i njihove klasifikacije.");
@@ -24,10 +34,10 @@ KlasifikacijaGovora::KlasifikacijaGovora(boost::shared_ptr<ALBroker> pBroker,
 void KlasifikacijaGovora::init()
 {
   
-  brojOkviraPoBufferu = 5;
-  granicaGlasnoce = 5000;
+  //brojOkviraPoBufferu = 5;
+  //granicaGlasnoce = 5000;
   kupimBuffere = false;
-  brojBufferaKojeKupim = 10;
+  //brojBufferaKojeKupim = 10;
   brojBufferaKojeSamPokupio = 0;
 
   
@@ -52,14 +62,35 @@ void KlasifikacijaGovora::init()
   startDetection();*/
 }
 
-void KlasifikacijaGovora::pocniKlasifikaciju()
+void KlasifikacijaGovora::pocniKlasifikaciju( const int &granicaGlasnoceParam = 5000,
+					      const int &brojOkviraPoBufferuParam = 5,
+					      const int &brojBufferaKojeKupimParam = 10,
+					      const int &frekvencijaParam = 16000,
+					      const ALValue &channelIDParam = FRONTCHANNEL,
+					      //const int &deinterleavingParam,// = 0, 
+					      const int &inputBufferSizeParam = 8192) // 8192 (=170ms) ili 16384 (=340ms). Citat iz dokumentacije: "Warning: when speech recognition is running, a buffer size of 8192 is used. Don't change it during the recognition process."
 {   
   audioDevice->callVoid("setClientPreferences",
                         getName(),                //Name of this module
-                        16000,                    //16000 Hz requested
-                        (int)FRONTCHANNEL,         //1 Channel requested
-                        0                         //Deinterleaving not requested
+                        frekvencijaParam,         //16000 Hz requested
+                        (int)channelIDParam,      //1 Channel requested
+                        0 //deinterleavingParam       //Deinterleaving not requested
                         );
+
+
+  try //ukoliko pozovete modul nekim modulom pa prekinete npr. sa ctrl+c i onda opet pozovete, nece radit zato sto se opet poziva "setParameter", a vec je bio pozvan. Ako hocete  promijeniti bufferSize, restartajte naoqi pa pozovite nanovo. 
+  {
+    audioDevice->callVoid("setParameter", std::string("inputBufferSize") , inputBufferSizeParam);
+  }
+  catch(const AL::ALError&) // no object name given to avoid warning
+  {
+    qiLogInfo("KlasifikacijaGovora") << "Buffer size je " << audioDevice->call<int>("getParameter", std::string("inputBufferSize")) <<
+    " i takav ce biti sve dok se naoqi ne restarta." << std::endl;
+  }
+  
+  granicaGlasnoce = granicaGlasnoceParam;
+  brojOkviraPoBufferu = brojOkviraPoBufferuParam;
+  brojBufferaKojeKupim = brojBufferaKojeKupimParam;
 
   startDetection();
 }
@@ -262,3 +293,4 @@ void KlasifikacijaGovora::process(const int & nbOfChannels,
   	} 	
   }
 }
+

@@ -1,7 +1,7 @@
 # Copyright (C) 2010 Aldebaran Robotics
 
 cmake_minimum_required(VERSION 2.6.4 FATAL_ERROR)
-project(KlasifikacijaGovora)
+project(nao-sound-classification)
 find_package(qibuild)
 
 option(KLASIFIKACIJAGOVORA_IS_REMOTE
