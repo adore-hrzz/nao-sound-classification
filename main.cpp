@@ -15,7 +15,7 @@
 // include the modules
 #include "KlasifikacijaGovora.h"
 
-#ifdef KLASIFIKACIJAGOVORA_IS_REMOTE
+#ifdef LRKLASIFIKACIJAZVUKOVA_IS_REMOTE
 # define ALCALL
 #else
 # ifdef _WIN32
@@ -36,7 +36,7 @@ extern "C"
     AL::ALBrokerManager::getInstance()->addBroker(pBroker);
 
     // create module instances
-    AL::ALModule::createModule<KlasifikacijaGovora>(pBroker,"KlasifikacijaGovora");
+    AL::ALModule::createModule<LRKlasifikacijaZvukova>(pBroker,"LRKlasifikacijaZvukova");
     return 0;
   }
 
@@ -48,7 +48,7 @@ extern "C"
 } // extern "C"
 
 
-#ifdef KLASIFIKACIJAGOVORA_IS_REMOTE
+#ifdef LRKLASIFIKACIJAZVUKOVA_IS_REMOTE
 
 int main(int argc, char *argv[] )
 {
@@ -57,7 +57,7 @@ int main(int argc, char *argv[] )
   sig = &_createModule;
 
   // call main
-  ALTools::mainFunction("KlasifikacijaGovora", argc, argv, sig);
+  ALTools::mainFunction("LRKlasifikacijaZvukova", argc, argv, sig);
 }
 
 #endif
