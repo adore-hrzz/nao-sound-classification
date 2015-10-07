@@ -1,0 +1,4 @@
+<project name="SoundClass">
+  <!-- Add your project dependencies here -->
+  <depends buildtime="true" runtime="true" names="libxtract" />
+</project>
