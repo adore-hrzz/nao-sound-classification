@@ -14,7 +14,7 @@ string names[10] = {"Sound library folder: ",
                    "Sound library list: ",
                    "Feature selection string: ",
                    "Sound features data: ",
-                   "Learned classes list:"
+                   "Learned classes list:",
                    "Classifying model: ",
                    "Robot IP: ",
                    "Robot port: ",
