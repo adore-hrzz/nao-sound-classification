@@ -32,9 +32,10 @@
  *      - [l] - Loudness
  *      - [m] - RMS (root mean square)
  *  Vector features:
- *      - [n] - LPCC (linear predictive cepstral coefficients)
+ *      - [n] - LPC (linear predictive coefficients) [LPCC is bugged]
  *      - [o] - MFCC (mel-frequency cepstral coefficients)
- *      - [p] - Bark coeficcients
+ *      - [p] - Bark frequency coeficcients
+ *      - [q] - PLP (perceptual linear prediction)
  */
 
 using namespace std;

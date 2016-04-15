@@ -199,9 +199,9 @@ void SCModule::soundClassification(const std::string &key,
 
         map<char, vector<double> > segmentFeatures = xTract.calcFeatures(classParams, k, windowSamples);
 
-        for (int k = 0; k < classParams.size(); k++)
-            for(int i = 0; i < segmentFeatures[classParams[k]].size(); i++)
-                feat1.push_back(segmentFeatures[classParams[k]][i]);
+        for (int i = 0; i < classParams.size(); i++)
+            for(int j = 0; j < segmentFeatures[classParams[i]].size(); j++)
+                feat1.push_back(segmentFeatures[classParams[i]][j]);
 
 
         Mat_<float> feat2 = Mat(1, feat1.size(), CV_32FC1, (float*)feat1.data());
