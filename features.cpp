@@ -136,9 +136,10 @@ map<char, vector<double> > soundFeatures::calcFeatures(string featString, int wi
             case 'n':
                 xtract[XTRACT_AUTOCORRELATION](wavData + windowStart, windowLength, NULL, autoCorr);
                 xtract[XTRACT_LPC](autoCorr, 11, NULL, lpc);
-                lpcc_order = 15;
-                xtract[XTRACT_LPCC](lpc + 10, 10, &lpcc_order, lpcc);
-                result['n'] = vector<double>(lpcc, lpcc + (int)lpcc_order);
+                //lpcc_order = 15;
+                //xtract[XTRACT_LPCC](lpc + 10, 10, &lpcc_order, lpcc);
+                //result['n'] = vector<double>(lpcc, lpcc + (int)lpcc_order);
+                result['n'] = vector<double>(lpc+10, lpc + 20);
             break;
             case 'o':
                 if (!calcFeat["spectrum"]){

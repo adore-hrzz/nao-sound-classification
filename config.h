@@ -23,9 +23,9 @@ struct parameters{
         classList = p[4];
         model= p[5];
         robotIP= p[6];
-        robotPort= 9559;
-        windowSamples= pow(2,13);
-        subSamples= pow(2,9);
+        robotPort= stoi(p[7]);
+        windowSamples= pow(2,stoi(p[8]));
+        subSamples= pow(2,stoi(p[9]));
     }
 
 };

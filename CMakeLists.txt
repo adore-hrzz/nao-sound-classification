@@ -17,21 +17,23 @@ if(PC_SIDE)
    qi_create_bin(SCModule "SCmain.cpp" "features.cpp" "features.h" "SCModule.cpp" "SCModule.h" "config.h" "noiseFilter.h" "noiseFilter.cpp" "fft_ifft.h")
    qi_create_bin(Listener "listener.cpp" "config.h" "noiseFilter.h" "noiseFilter.cpp" "fft_ifft.h")
    qi_create_bin(Learner "learner.cpp" "features.cpp" "features.h" "config.h" "noiseFilter.h" "noiseFilter.cpp" "fft_ifft.h")
-   qi_create_bin(autoClassify "autoClassify.cpp" "config.h")
+   qi_create_bin(fileClassify "fileClassify.cpp" "config.h" "features.cpp" "features.h")
+   qi_create_bin(naoClassify "naoClassify.cpp" "config.h")
    qi_create_bin(Configurator "configurator.cpp")
 
    qi_use_lib(Learner XTRACT SNDFILE OPENCV2_CORE OPENCV2_ML)
    qi_use_lib(Listener SNDFILE ALCOMMON ALPROXIES)
    qi_use_lib(SCModule XTRACT ALCOMMON ALAUDIO ALPROXIES BOOST OPENCV2_CORE OPENCV2_ML)
-   qi_use_lib(autoClassify ALCOMMON ALPROXIES)
+   qi_use_lib(fileClassify XTRACT SNDFILE OPENCV2_CORE OPENCV2_ML)
+   qi_use_lib(naoClassify ALCOMMON ALPROXIES)
 
 else()
    qi_create_lib(SCModule "SCmain.cpp" "features.cpp" "features.h" "SCModule.cpp" "SCModule.h" "config.h" "noiseFilter.h" "noiseFilter.cpp" "fft_ifft.h" SUBFOLDER naoqi)
-   qi_create_bin(autoClass "autoClassify.cpp" "config.h" SUBFOLDER naoqi)
+   qi_create_bin(naoClass "naoClassify.cpp" "config.h" SUBFOLDER naoqi)
    qi_create_bin(configurator "configurator.cpp" SUBFOLDER naoqi)
 
    qi_use_lib(SCModule XTRACT ALCOMMON ALAUDIO ALPROXIES BOOST OPENCV2_CORE OPENCV2_ML ALTHREAD)
-   qi_use_lib(autoClass ALCOMMON ALPROXIES)
+   qi_use_lib(naoClass ALCOMMON ALPROXIES)
 endif()
 
 
