@@ -110,3 +110,10 @@ records, stores files to "Sound library folder", automatically updates "Sound li
 - needs SCModule to be running
 
 ./autoClassify dm.config
+
+5) Classify from file (fileClassify)
+
+- read audio file (currently hardcoded)
+
+- classify audio file without SCModule & NAO
+
