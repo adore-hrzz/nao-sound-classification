@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 2.8)
+set( CMAKE_C_COMPILER "/usr/bin/gcc-4.8" )
+set( CMAKE_CXX_COMPILER "/usr/bin/g++-4.8" )
 project(SoundClass)
 
+SET( CMAKE_CXX_FLAGS -DBOOST_SIGNALS_NO_DEPRECATION_WARNING )
 SET( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR})
 
 find_package(qibuild)
@@ -10,7 +13,7 @@ option(PC_SIDE
   "ON - OFF"
   ON)
 
-set(CMAKE_CXX_FLAGS "-std=c++0x")
+set(CMAKE_CXX_FLAGS "-std=gnu++0x")
 
 if(PC_SIDE)
    add_definitions( " -DPC_SIDE ")
