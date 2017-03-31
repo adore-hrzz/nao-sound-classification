@@ -87,7 +87,7 @@ int main(int argc, char *argv[]){
         classNames[k+1]=temp;
     respFile.close();
 
-    SNDFILE *wavFile = sf_open("/home/mirko/nao/workspace/SoundClass/Resources/test3.wav", SFM_READ, &wavInfo);
+    SNDFILE *wavFile = sf_open("/home/mirko/Devel/ADORE/SoundClass/Resources/Train/train/18_plac.wav", SFM_READ, &wavInfo);
 
     double *wavData=(double*) malloc(sizeof(double) * wavInfo.frames );
     long long wavSamples = (double) sf_read_double(wavFile, wavData, wavInfo.frames);
