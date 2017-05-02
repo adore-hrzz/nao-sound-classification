@@ -42,10 +42,11 @@ noiseFilter filter;
 int windowSamples; //bytes
 
 void getFeatures(string soundName, string featString){
-    string soundResponse = soundName.substr(soundName.find('_')+1);
+    string soundResponse = soundName.substr(soundName.find("__")+2);
+    soundResponse.erase(soundResponse.find("_"));
 
     SF_INFO wavInfo;
-    SNDFILE *wavFile = sf_open((par.soundFolder + soundName + ".wav").c_str(), SFM_READ, &wavInfo);
+    SNDFILE *wavFile = sf_open((par.soundFolder + soundName).c_str(), SFM_READ, &wavInfo);
 
     double *wavData=(double*) malloc(sizeof(double) * wavInfo.frames );
     long wavSamples = (double) sf_read_double(wavFile, wavData, wavInfo.frames);
@@ -114,14 +115,11 @@ void classModel(string featString){
         if(tempImp) cout << fsSize[featString[i]].second - fsSize[featString[i]].first << " " << featString[i] << " -> " << tempImp << endl;
     }
 
-
     ofstream classesFile;
     classesFile.open(par.classList, ofstream::out | ofstream::trunc);
     for(int k=0; k < fsClasses.size(); k++)
         for(map<string, int>::iterator it = fsClasses.begin(); it != fsClasses.end(); ++it)
             if(it->second == k+1)classesFile << it->first << endl;
-
-
 
 
     classesFile.flush();
