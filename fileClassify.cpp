@@ -22,7 +22,7 @@ ifstream configFileIN;
 
 parameters par;
 
-CvRTrees classModel;
+CvRTrees classificatorModel;
 map<int, string> classNames;
 SF_INFO wavInfo;
 
@@ -62,7 +62,7 @@ int classifySegment(double* segmentData, int segmentLength, string featString){
 
         Mat_<float> feat2 = Mat(1, feat1.size(), CV_32FC1, (float*)feat1.data());
 
-        int subSamplePrediction = classModel.predict(feat2, Mat());
+        int subSamplePrediction = classificatorModel.predict(feat2, Mat());
         classResults[subSamplePrediction]++;
     }
     for (int k = 1; k <= classNames.size(); k++)
@@ -76,7 +76,7 @@ int classifySegment(double* segmentData, int segmentLength, string featString){
 int main(int argc, char *argv[]){
     readParams(argc, argv);
 
-    classModel.load(((string)par.model).c_str());
+    classificatorModel.load(((string)par.model).c_str());
 
     ifstream respFile;
     respFile.open(((string)par.classList).c_str());
