@@ -35,3 +35,9 @@ nosetests.xml
 .mr.developer.cfg
 .project
 .pydevproject
+
+# Build folders
+build*/
+
+# Emacs droppings
+*~
