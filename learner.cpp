@@ -16,7 +16,6 @@
 
 #include <sndfile.h>
 
-#include "noiseFilter.h"
 #include "features.h"
 #include "config.h"
 
@@ -24,7 +23,7 @@
 using namespace std;
 using namespace cv;
 
-string configPath = "/home/mirko/nao/workspace/SoundClass/Resources/SC.config";
+string configPath = "SC.config";
 ifstream configFileIN;
 
 parameters par;
@@ -37,15 +36,11 @@ int fsNum = 0;
 ifstream soundList;
 ofstream modelData;
 
-noiseFilter filter;
-
 int windowSamples; //bytes
 
-void getFeatures(string soundName, string featString){
-    string soundResponse = soundName.substr(soundName.find('_')+1);
-
+void calculateFeatures(string fileName, string fileClass){
     SF_INFO wavInfo;
-    SNDFILE *wavFile = sf_open((par.soundFolder + soundName + ".wav").c_str(), SFM_READ, &wavInfo);
+    SNDFILE *wavFile = sf_open((par.soundFolder + fileName).c_str(), SFM_READ, &wavInfo);
 
     double *wavData=(double*) malloc(sizeof(double) * wavInfo.frames );
     long wavSamples = (double) sf_read_double(wavFile, wavData, wavInfo.frames);
@@ -57,20 +52,20 @@ void getFeatures(string soundName, string featString){
 
     for(int k = 0; k + par.windowSamples < wavSamples; k += par.windowSamples){
 
-        map<char, vector<double> > segmentFeatures = xTract.calcFeatures(featString, k, par.windowSamples);
+        map<char, vector<double> > segmentFeatures = xTract.calcFeatures(par.featParams, k, par.windowSamples);
 
-        modelData << soundResponse;
+        modelData << fileClass;
 
-        for (int i = 0; i < featString.size(); i++){
+        for (int i = 0; i < par.featParams.size(); i++){
             if (!fsClassSet){
-                fsSize[featString[i]].first = fsNum;
-                fsNum += segmentFeatures[featString[i]].size();
-                fsSize[featString[i]].second = fsNum;
+                fsSize[par.featParams[i]].first = fsNum;
+                fsNum += segmentFeatures[par.featParams[i]].size();
+                fsSize[par.featParams[i]].second = fsNum;
             }
-            for(int j = 0; j < segmentFeatures[featString[i]].size(); j++){
-                if(!fsNormSet)fsNormalization[featString[i]].push_back(log10(abs(segmentFeatures[featString[i]][j])));
-                if(isfinite(segmentFeatures[featString[i]][j])){//*pow((double)10,-fsNormalization[featString[i]][j])){
-                    modelData << ", "<< (double) segmentFeatures[featString[i]][j];//*pow((double)10,-fsNormalization[featString[i]][j]);
+            for(int j = 0; j < segmentFeatures[par.featParams[i]].size(); j++){
+                if(!fsNormSet)fsNormalization[par.featParams[i]].push_back(log10(abs(segmentFeatures[par.featParams[i]][j])));
+                if(isfinite(segmentFeatures[par.featParams[i]][j])){//*pow((double)10,-fsNormalization[featString[i]][j])){
+                    modelData << ", "<< (double) segmentFeatures[par.featParams[i]][j];//*pow((double)10,-fsNormalization[featString[i]][j]);
                 }
                 else modelData << ", @";
             }
@@ -79,12 +74,12 @@ void getFeatures(string soundName, string featString){
         fsNormSet = true;
         fsClassSet = true;
         int prog = (double)(k+ par.windowSamples)/wavSamples*100;
-        cout << soundName << ": [" << string(prog/10,'|') << string(10 - prog/10,'*')<< "] "<< prog << "%\r" << flush;
+        cout << fileName << ": [" << string(prog/10,'|') << string(10 - prog/10,'*')<< "] "<< prog << "%\r" << flush;
     }
-    cout << soundName << ": [" << string(10,'|') << "] DONE" << endl;
+    cout << fileName << ": [" << string(10,'|') << "] DONE" << endl;
 }
 
-void classModel(string featString){
+void classificatorModel(){
     CvMLData modelData;
     modelData.set_miss_ch('@');
     modelData.read_csv((par.featData).c_str());
@@ -107,22 +102,18 @@ void classModel(string featString){
    // cout << classModel.get_train_error() << endl;
 
     Mat varImp = classModel.getVarImportance();
-    for (int i = 0; i < featString.size(); i++){
+    for (int i = 0; i < par.featParams.size(); i++){
         double tempImp=0;
-        for (int k = fsSize[featString[i]].first; k < fsSize[featString[i]].second; k++)
+        for (int k = fsSize[par.featParams[i]].first; k < fsSize[par.featParams[i]].second; k++)
             tempImp+=varImp.at<float>(k);
-        if(tempImp) cout << fsSize[featString[i]].second - fsSize[featString[i]].first << " " << featString[i] << " -> " << tempImp << endl;
+        if(tempImp) cout << fsSize[par.featParams[i]].second - fsSize[par.featParams[i]].first << " " << par.featParams[i] << " -> " << tempImp << endl;
     }
-
 
     ofstream classesFile;
     classesFile.open(par.classList, ofstream::out | ofstream::trunc);
     for(int k=0; k < fsClasses.size(); k++)
         for(map<string, int>::iterator it = fsClasses.begin(); it != fsClasses.end(); ++it)
             if(it->second == k+1)classesFile << it->first << endl;
-
-
-
 
     classesFile.flush();
     classesFile.close();
@@ -145,20 +136,19 @@ void readParams(int argc, char *argv[]){
 int main(int argc, char *argv[]){
     readParams(argc, argv);
 
-    string soundName;
+    string fileName, fileClass;
 
     fsSize.clear();
 
-
     modelData.open (par.featData, ofstream::out | ofstream::trunc);
     soundList.open (par.soundList, ifstream::in);
-    while (soundList >> soundName)
-        getFeatures(soundName, par.featParams);
+    while ((soundList >> fileName) && (soundList >> fileClass))
+        calculateFeatures(fileName, fileClass);
     soundList.close();
     modelData.flush();
     modelData.close();
 
-    classModel(par.featParams);
+    classificatorModel();
 
 
     return 0;
