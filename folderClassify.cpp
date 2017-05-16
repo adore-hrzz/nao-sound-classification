@@ -28,7 +28,7 @@ ifstream configFileIN;
 
 parameters par;
 CvRTrees classificatorModel;
-map<int, string> classNames;
+vector<string> classNames;
 
 ifstream soundList;
 ofstream modelData;
@@ -68,10 +68,12 @@ string getPrediction(string fileName){
         int subSamplePrediction = classificatorModel.predict(feat2, Mat());
         classResults[subSamplePrediction]++;
     }
-    for (int k = 1; k <= classNames.size(); k++)
-            cout << classNames[k] << " -> " << classResults[k] << endl;
-    int result = max_element(classResults.begin(),classResults.end(), mapCompare)->first;
- //   cout << classNames[result]<< "(" << max_element(classResults.begin(),classResults.end(), mapCompare)->second << ")" << endl;
+    /*for (int k = 0; k < classNames.size(); k++){
+        cout << classNames[k] << " -> " << classResults[k+1] << endl;
+}*/
+    int result = max_element(classResults.begin(),classResults.end(), mapCompare)->first - 1;
+    //cout << classNames[result]<< "(" << max_element(classResults.begin(),classResults.end(), mapCompare)->second << ")" << endl;
+    if(!max_element(classResults.begin(),classResults.end(), mapCompare)->second) cout << wavInfo.frames << endl;
     return classNames[result];
 }
 
@@ -93,21 +95,40 @@ int main(int argc, char *argv[]){
     readParams(argc, argv);
 
     classificatorModel.load(((string)par.model).c_str());
-    ifstream respFile;
-    respFile.open(((string)par.classList).c_str());
+    ifstream responseList;
+    responseList.open(((string)par.classList).c_str());
 
     string fileName, fileClass;
 
+    while (responseList >> fileClass) classNames.push_back(fileClass);
+
     modelData.open (par.featData, ofstream::out | ofstream::trunc);
     soundList.open (par.soundList, ifstream::in);
+    map<pair<string, string>, int> results;
     while ((soundList >> fileName) && (soundList >> fileClass)){
         string prediction = getPrediction(fileName);
-/* TO IMPLEMENT
- * check how much is which category true, how much is false
- * which of them are easily mistaken etc
- */
+        results[pair<string, string>(fileClass, prediction)]++;
     }
+
+// !!!!!!!!!!!!!!!!!!!
+// HARDCODED FILE NAME
+// !!!!!!!!!!!!!!!!!!!
+    ofstream resultsFile("./results.csv");
+
+    for( auto className2 : classNames)
+        resultsFile << ";" << className2;
+    resultsFile << endl;
+
+    for(auto className1 : classNames){
+        resultsFile << className1;
+        for( auto className2 : classNames)
+            resultsFile << ";" << results[pair<string, string>(className1, className2)];
+        resultsFile << endl;
+    }
+
     soundList.close();
+    responseList.close();
+    resultsFile.close();
     modelData.flush();
     modelData.close();
 
