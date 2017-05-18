@@ -5,8 +5,8 @@ import random
 import os
 
 
-train_data_txt = 'train_data.txt'
-test_data_txt = 'test_data.txt'
+train_data_txt = './Resources/train_data.txt'
+test_data_txt = './Resources/test_data.txt'
 
 def splitData():
     #opening .txt file for reading

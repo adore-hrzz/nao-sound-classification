@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import sys
-import csv
-import itertools
 import numpy as np
 import matplotlib.pyplot as plt
+import csv
+import os
+import sys
+import itertools
 from sklearn import svm, datasets
-from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix
 
 
@@ -37,32 +37,49 @@ def plot_confusion_matrix(cm, classes, data_type, normalize=False, title='Confus
     plt.xlabel('Predicted label')
 
 
-def validator(csvfile):
-    csv.register_dialect('commadot', delimiter=';')
 
-    #opening and reading CSV file containing Train dataset
-    print(csvfile)
-    f_train = open(csvfile, 'rb')
-    reader = csv.reader(f_train, dialect='commadot')
 
-    #generate vocalization labels in order and confusion matrix for Train dataset
-    vocalization_labels=reader.next()[1::]    
-    matrix_list=[]
-    for rows in reader:
-        matrix_list.append([ int(x) for x in rows[1::] ])
-    cnf_matrix = np.asarray(matrix_list)
-    f_train.close()
+def crossValidation(directory, csvfile):
+    curAvg=np.zeros((5,5))
+    n=0.0
+    if len(sys.argv)==4:
+        plt.figure()
+        plt.ion()
 
-    #plot confusion matrix for Train dataset
+    for i in range(len(os.listdir(directory))):
+        csv.register_dialect('commadot', delimiter=';')
+        f = open(csvfile+str(i+1)+'.csv', 'rb')
+        reader = csv.reader(f, dialect='commadot')
+        #generate confusion matrix of type numpy.array
+        vocalization_labels=reader.next()[1::]
+        matrix_list = []
+        for rows in reader:
+            matrix_list.append([ int(x) for x in rows[1::] ])
+        matrix_list = np.asarray(matrix_list)
+        f.close()
+        #calculating moving average for every confusion matrix element
+        curAvg = curAvg + (matrix_list - curAvg)/(n+1.0)
+        n += 1
+        if len(sys.argv)==4:
+            plt.scatter(i,curAvg[sys.argv[2]][sys.argv[3]])
+
     np.set_printoptions(precision=2)
     plt.figure()
-    plot_confusion_matrix(cnf_matrix, classes=vocalization_labels, data_type=csvfile, title='')
+    plot_confusion_matrix(curAvg, classes=vocalization_labels, data_type=sys.argv[1], title='')
     plt.show()
+
+    if len(sys.argv)==4:
+        while True:
+            plt.pause(0.05)
 
 
 '''Main function'''
 if __name__ == '__main__':
-
-    csvfile = sys.argv[1]
-    validator(csvfile)
+    if sys.argv[1]=='train':
+        csvfile='./Resources/Train/results_train'
+        directory='./Resources/Train'
+    elif sys.argv[1]=='test':
+        csvfile='./Resources/Test/results_test'
+        directory='./Resources/Test'
+    crossValidation(directory, csvfile)
 
