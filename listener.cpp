@@ -19,7 +19,7 @@
 using namespace std;
 using namespace AL;
 
-string configPath = "/home/mirko/nao/workspace/SoundClass/Resources/SC.config";
+string configPath = "/home/fpetric/devel/nao/workspace/nao-sound-classification/build-remote-21/sdk/bin/SC.config";
 ifstream configFileIN;
 
 ifstream soundListIN;
@@ -72,7 +72,7 @@ int main(int argc, char *argv[]){
     soundListOUT.open(par.soundList, ofstream::out | std::ofstream::app);
     try {
         bool rec = true;
-        boost::shared_ptr<AL::ALProxy> testProxy = boost::shared_ptr<AL::ALProxy>(new AL::ALProxy("SCModule", par.robotIP, par.robotPort));
+        boost::shared_ptr<AL::ALProxy> testProxy = boost::shared_ptr<AL::ALProxy>(new AL::ALProxy("SCModule", "herrflick.local", 9559));
         while(rec){
 /*            {
                SF_INFO wavInfo;

@@ -64,14 +64,15 @@ string getPrediction(string fileName){
 
 
         Mat_<float> feat2 = Mat(1, feat1.size(), CV_32FC1, (float*)feat1.data());
-
         int subSamplePrediction = classificatorModel.predict(feat2, Mat());
         classResults[subSamplePrediction]++;
+
     }
     /*for (int k = 0; k < classNames.size(); k++){
         cout << classNames[k] << " -> " << classResults[k+1] << endl;
 }*/
-    int result = max_element(classResults.begin(),classResults.end(), mapCompare)->first - 1;
+
+    int result = max_element(classResults.begin(),classResults.end(), mapCompare)->first-1;
     //cout << classNames[result]<< "(" << max_element(classResults.begin(),classResults.end(), mapCompare)->second << ")" << endl;
     if(!max_element(classResults.begin(),classResults.end(), mapCompare)->second) cout << wavInfo.frames << endl;
     return classNames[result];
@@ -106,6 +107,7 @@ int main(int argc, char *argv[]){
     soundList.open (par.soundList, ifstream::in);
     map<pair<string, string>, int> results;
     while ((soundList >> fileName) && (soundList >> fileClass)){
+        cout << fileName << endl;
         string prediction = getPrediction(fileName);
         results[pair<string, string>(fileClass, prediction)]++;
     }

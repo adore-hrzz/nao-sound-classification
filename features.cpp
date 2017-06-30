@@ -1,5 +1,7 @@
 #include "features.h"
 
+#define MFCC_NUM 10
+
 
 soundFeatures::soundFeatures()
 {
@@ -22,7 +24,7 @@ void soundFeatures::setData(double *data, long n, int window, int samp){
 map<char, vector<double> > soundFeatures::calcFeatures(string featString, int windowStart, int windowLength){
     double mean, dev, zcr, hzcrr, kurtosis, skewness, variance, RMS, sharp, lpcc_order, loud;
     double s_var ,s_mean, s_dev, s_kur, s_skew, s_centroid;
-    double spectrum[windowLength], autoCorr[windowLength+1], lpc[20], lpcc[15], mfcc[10], barkC[25];
+    double spectrum[windowLength], autoCorr[windowLength+1], lpc[20], lpcc[15], mfcc[MFCC_NUM], barkC[25];
     int bark[26];
 
     xtract_mel_filter mfccBank;
@@ -151,20 +153,20 @@ map<char, vector<double> > soundFeatures::calcFeatures(string featString, int wi
                 calcFeat["spectrum"] = true;
                 }
 
-                mfccBank.n_filters = 10;
-                mfccBank.filters = (double **)malloc(10 * sizeof(double *));
-                for(int i = 0; i < 10; i++)
+                mfccBank.n_filters = MFCC_NUM;
+                mfccBank.filters = (double **)malloc(MFCC_NUM * sizeof(double *));
+                for(int i = 0; i < MFCC_NUM; i++)
                     mfccBank.filters[i] = (double *)malloc(windowLength * sizeof(double));
 
                 xtract_init_mfcc(windowLength/2, samplerate/2, XTRACT_EQUAL_GAIN, 20, samplerate/2, mfccBank.n_filters, mfccBank.filters);
 
                 xtract[XTRACT_MFCC](spectrum, windowLength/2, &mfccBank, mfcc);
 
-                for(int i = 0; i < 10; ++i)
+                for(int i = 0; i < MFCC_NUM; ++i)
                     free(mfccBank.filters[i]);
                 free(mfccBank.filters);
 
-                result['o'] = vector<double>(mfcc, mfcc + 10);
+                result['o'] = vector<double>(mfcc, mfcc + MFCC_NUM);
             break;
             case 'p':
                 if (!calcFeat["bark"]){

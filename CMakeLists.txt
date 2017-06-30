@@ -37,7 +37,7 @@ else()
    qi_create_bin(naoClass "naoClassify.cpp" "config.h" SUBFOLDER naoqi)
    qi_create_bin(configurator "configurator.cpp" SUBFOLDER naoqi)
 
-   qi_use_lib(SCModule XTRACT ALCOMMON ALAUDIO ALPROXIES BOOST OPENCV2_CORE OPENCV2_ML ALTHREAD)
+   qi_use_lib(SCModule LIBXTRACT ALCOMMON ALAUDIO ALPROXIES BOOST OPENCV2_CORE OPENCV2_ML ALTHREAD)
    qi_use_lib(naoClass ALCOMMON ALPROXIES)
 endif()
 

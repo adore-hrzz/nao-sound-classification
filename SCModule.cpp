@@ -206,7 +206,7 @@ void SCModule::soundClassification(const std::string &key,
 
         Mat_<float> feat2 = Mat(1, feat1.size(), CV_32FC1, (float*)feat1.data());
 
-        int asdad = model.predict(feat2, Mat(), Range::all(), -1);
+        int asdad = model.predict(feat2, Mat());
         cout << asdad << " ";
         classResults[asdad]++;
     }
