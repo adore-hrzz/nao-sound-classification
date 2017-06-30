@@ -11,14 +11,10 @@ from sklearn import svm, datasets
 from sklearn.metrics import confusion_matrix
 
 
-def plot_confusion_matrix(cm, classes, data_type, normalize=False, title='Confusion matrix', cmap=plt.cm.Blues):
+
+def plot_confusion_matrix(cm, classes, data_type, normalize=True, title='Confusion matrix', cmap=plt.cm.Blues):
     """This function prints and plots the confusion matrix. Normalization can be applied by setting 'normalize=True'."""
-    plt.imshow(cm, interpolation='nearest', cmap=cmap)
-    plt.title(title)
-    plt.colorbar()
-    tick_marks = np.arange(len(classes))
-    plt.xticks(tick_marks, classes, rotation=45)
-    plt.yticks(tick_marks, classes)
+
 
     if normalize:
         cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
@@ -26,6 +22,15 @@ def plot_confusion_matrix(cm, classes, data_type, normalize=False, title='Confus
         print('Normalized confusion matrix for {} dataset'.format(data_type))
     else:
         print('Confusion matrix for {} dataset, without normalization'.format(data_type))
+
+
+    plt.imshow(cm, interpolation='nearest', cmap=cmap)
+    plt.title(title)
+    plt.colorbar()
+    tick_marks = np.arange(len(classes))
+    plt.xticks(tick_marks, classes, rotation=45)
+    plt.yticks(tick_marks, classes)
+
 
     print(cm)
     thresh = cm.max() / 2.
@@ -40,6 +45,7 @@ def plot_confusion_matrix(cm, classes, data_type, normalize=False, title='Confus
 
 
 def crossValidation(directory, csvfile):
+    """The function calculates running average for each confusion matrix element by going through all matrices. The program can be called with 1 or 3 arguments from command line. The first argument is 'test' or 'train' which indicates which matrices to calculate moving average for and print them. The second and third arguments are the row and column numbers of matrix which you want to plot. Function then plots the value of running average after every iteration to see the convergence of cross-validation. Example: cross_validation.py train 1 1"""
     curAvg=np.zeros((5,5))
     n=0.0
     if len(sys.argv)==4:

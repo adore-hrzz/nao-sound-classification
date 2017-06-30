@@ -1,4 +1,6 @@
 #include "SCModule.h"
+#include <unistd.h>
+
 #define arrLen(x) (sizeof(x)/sizeof(x[0]))
 
 bool mapCompare(const pair<int,int> &i1, const pair<int,int> &i2){
@@ -206,7 +208,7 @@ void SCModule::soundClassification(const std::string &key,
 
         Mat_<float> feat2 = Mat(1, feat1.size(), CV_32FC1, (float*)feat1.data());
 
-        int asdad = model.predict(feat2, Mat(), Range::all(), -1);
+        int asdad = model.predict(feat2, Mat());//, Range::all(), -1);
         cout << asdad << " ";
         classResults[asdad]++;
     }
