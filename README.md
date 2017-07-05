@@ -3,7 +3,7 @@ nao-sound-classification
 
 The sound classification module provides the following functionality:
 
-1. A machine learning module, based on the OpenCV implementation of the random forest algorithm, for training a sound classifier from a labeled set of recordings.
+1. A machine learning module, based on the OpenCV implementation of the random trees algorithm, for training a sound classifier from a labeled set of recordings.
 
 2. A classifier that can process a batch prerecorded audio files and output the resulting confusion matrix.
 
@@ -45,7 +45,7 @@ sudo make install PREFIX=/usr/local
 Building the software
 ---------------------
 
-Clone this git repo into your qiworkspace. Make sure to select the host toolchain (SDK).
+Clone this git repo into your qiworkspace. Make sure to select the host toolchain (SDK). The PC_SIDE needs to be set to ON in order to build a package for remote use.
 ```
 cd nao-sound-classification
 qibuild configure
@@ -110,7 +110,7 @@ Although technically not necessary, it is currently most convenient to create a 
     8. Sound sample length [pow(2, x)] - each recording is chopped up into pieces consisting of  2^(sound sample length) samples 
     9. subSample length [pow(2, x)] - each piece is chopped up into smaller piecesconsisting of 2^(subSample length) samples; currently used only by HZCRR (high zero crossing rate ratio) 
 
-6. Learn the model (random forest)
+6. Learn the model (random trees)
      
      ```
      ./Learner SC.config
@@ -124,30 +124,73 @@ Although technically not necessary, it is currently most convenient to create a 
      ```
 Line 2. in `SC.config` names the dataset that will be used for validation. By default, this is the training data. To use test data, modify this line in `SC.config`.
 
+8. In order to carry out cross-validation, run the `cross_validation.py` script. You can run cross-validation for Train or Test dataset. (Just replace the word when calling the script). Additional two parameters (i,j) can be passed to the script in order to plot the moving average value of element (i,j) of the confusion matrices:
+    ```
+    cross-validation test 1 1
+    ```
+
 
 "Local" use (on the robot)
 ==========================
 
-**WARNING:** These instructions are outdated (just a copy-paste of old, unverified instructions).
 
-Initialize workspace. In empty folder
+1. Set the PC_SIDE inside `CMakeLists.txt` to OFF
 
-qibuild init
+2. Compile the LibXtract library on the OpenNAO software by running it on the virtual machine, copy it to your computer and run add it to the cross-toolchain:
 
-qitoolchain create pc ../../naoqi-skd-1.14.5-linux64/toolchain.xml
+    ```
+    qitoolchain add-package -c nao-cross <path to the created zip file>
+    ```
 
-qitoolchain add-package -c pc XTRACT ../SoundClass_pc.tgz
+3. Initialize workspace. In empty folder run:
 
-qibuild configure -c pc
-(qibuild make -c pc)
+    ```
+    qibuild init
+    ```
 
-Open project (CMakeLists.txt) in QtCreator (v5.x.x), specify build folder corrrectly!
+4. Tell naoqi to use cross-toolchain:
 
-For building 3rd party packages
+    ```
+    qitoolchain create nao-cross <path to ctc>/toolchain.xml
+    ```
 
-Get Opennao VM (for building 3rd party packages and running them on the robot)
+5. Add configuration for cross-toolchain:
 
-Workflow for "remote" use (on the development PC)
+    ```
+    qibuild add-config nao-cross -t nao-cross}
+    ```
+
+6. Compile the package by running:
+
+    ```
+    qibuild configure -c nao-cross
+    qibuild make -c nao-cross
+    ```
+
+7. Copy the created library file `libSCModule.so` from <path to cross-toolchain build folder>/sdk/lib/naoqi/ to the robot inside /home/nao/naoqi/modules/ folder by running the command on your computer:
+
+    ```
+    scp <file path> nao@192.168.1.105:~/naoqi/modules/
+    ```
+
+8. Add this line to the \texttt{autoload.ini} file inside /home/nao/naoqi/modules under the [user] line:
+
+    ```
+    /home/nao/naoqi/modules/libSCModule.so
+    ```
+
+9. Copy `model.xml`, `classList.txt` and `SC.config` files inside Resources folder on the robot. Make sure that the full file path is used inside `SC.config`.
+
+10. Copy `naoClass` executable binary file form <path to cross-toolchain build folder>/sdk/bin/naoqi/ on the robot using scp as before.
+
+11. After restarting the robot you can check whether the SCModule is running on NAO robot page
+
+12. Run the classifier on the robot by running:
+
+    ```
+    ./naoClass /home/nao/<path to Resources folder>/SC.config
+    ```
+
 =================================================
 
 
@@ -158,15 +201,17 @@ Workflow for "remote" use (on the development PC)
 
 - running SCModule remotely (on the PC)
 
-./SCModule --pip 192.168.1.106 --pport 9559
+    ```
+    ./SCModule --pip 192.168.1.106 --pport 9559
+    ```
 
 ./Listener <config_file_name>
 
 records, stores files to "Sound library folder", automatically updates "Sound library list"
 
-3) Learn (Learner) - gradient boosted trees
+3) Learn (Learner) - random trees
 
-- koristi feature selection string; ako je ukljucena opcija, optimira (odbacuje "beskorisne" feature)
+- Learns the model for sound classification using sound features listed in `model.xml`
 
 - processes recordings in chunks/subchunks 
 

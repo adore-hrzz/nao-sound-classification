@@ -50,7 +50,7 @@ private:
     map<int, string> classNames;
     int numDone;
 
-    CvGBTrees model;
+    CvRTrees model;
 
     vector<vector <double>> recordedAudio;
     vector<double> recordedNoise;
