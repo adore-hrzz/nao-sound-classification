@@ -11,7 +11,7 @@ find_path(LIB_PATH libxtract.a)
 
 option(PC_SIDE
   "ON - OFF"
-  ON)
+  OFF)
 
 set(CMAKE_CXX_FLAGS "-std=gnu++0x")
 

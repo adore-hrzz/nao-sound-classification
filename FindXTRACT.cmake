@@ -3,13 +3,13 @@ unset(XTRACT_FOUND)
 
 find_path(XTRACT_INCLUDE_DIR xtract/libxtract.h
   HINTS
-  /usr/include
-  /usr/local/include)
+  /include
+  /local/include)
 
 find_library(XTRACT_LIBRARY NAMES libxtract.a
   HINTS
-  /usr/lib
-  /usr/local/lib)
+  /lib
+  /local/lib)
 
 
 
