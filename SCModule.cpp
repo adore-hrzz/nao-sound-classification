@@ -95,7 +95,7 @@ ALValue SCModule::soundAcqusition( const ALValue &duration ){
 
     cout << "END" << endl << "Reducing noise in recording." << endl;
 
-    filter.reduceNoise(recordedAudio[0].size(), &recordedAudio[0][0]);
+//    filter.reduceNoise(recordedAudio[0].size(), &recordedAudio[0][0]);
 
     cout << "Done! Noise is reduced." << endl;
 
@@ -108,6 +108,7 @@ void SCModule::process(const int & nbOfChannels,
                const AL_SOUND_FORMAT * buffer,
                const ALValue & timeStamp)
 {
+//    std::cout << "In process" << std::endl;
     if(flagRecord){
         bool flagInput = false;
         for(int k=0; k<nbrOfSamplesByChannel ; k++)
@@ -121,6 +122,7 @@ void SCModule::process(const int & nbOfChannels,
         }
     }
     else if(flagRealTime){
+//        std::cout << "in flag real time" << std::endl;
         if (!flagClassify && numDone == numAudio && numDone > 0) {
             numAudio = 0;
             numDone = 0;
@@ -159,7 +161,11 @@ void SCModule::process(const int & nbOfChannels,
 }
 
 void SCModule::startRTClassification(){
-    if(!flagReady)return;
+    std::cout << "Starting RT classification" << std::endl;
+    if(!flagReady) {
+        std:: cout << "Not ready" << std::endl;
+        return;
+    }
     recordedAudio.clear();
     numAudio = 0;
     recordedAudio.push_back(vector <double>());
@@ -177,6 +183,7 @@ void SCModule::startRTClassification(){
     startDetection();
 }
 void SCModule::stopRTClassification(){
+    std::cout << "Stopping RT classification" << std::endl;
     flagRealTime = false;
     stopDetection();
 }

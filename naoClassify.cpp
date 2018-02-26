@@ -79,7 +79,7 @@ int main(int argc, char *argv[]){
 
         try {oldHistory = memoryProxy->call<ALValue>("getEventHistory", "soundClassified");}
         catch (const AL::ALError& e){}
-
+        std::cout << "par model " << par.model << std::endl << "feat params " << par.featParams << std::endl << "class list " << par.classList << std::endl;
         moduleProxy->callVoid("initRTClassification", ALValue(par.model), ALValue(par.featParams), ALValue(par.classList));
 
         char c = 'a';
